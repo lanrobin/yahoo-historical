@@ -49,6 +49,19 @@ class Fetcher:
         content = StringIO(data.content.decode("utf-8"))
         return pd.read_csv(content, sep=',')
 
+    def saveHistoricalData(self, events, rootPath):
+        """Returns a list of historical data from Yahoo Finance"""
+        if self.interval not in ["1d", "1wk", "1mo"]:
+            raise ValueError("Incorrect interval: valid intervals are 1d, 1wk, 1mo")
+
+        url = self.api_url % (self.ticker, self.start, self.end, self.interval, events, self.crumb)
+
+        data = requests.get(url, cookies={'B':self.cookie})
+        path = f"{rootPath}/{self.ticker}.csv"
+        with open(path, "wb") as f:
+            f.write(data.content)
+        print(f"File saved to path:{path}")
+
     def getHistorical(self, events='history'):
         """Returns a list of historical price data from Yahoo Finance"""
         return self.getData('history')
